@@ -29,7 +29,7 @@ pub fn p1() {
             res
         };
         let res = (v[left]*10) + v[right];
-        println!("{res}");
+        //println!("{res}");
         total += res;
 
     }
@@ -61,7 +61,7 @@ pub fn p2() {
                 };
                 for i in prev..(v.len()-(11-j)) {
                     if v[i] > m {
-                        println!("{} was larger than {m} so {res} was set to {i}", v[i]);
+                        //println!("{} was larger than {m} so {res} was set to {i}", v[i]);
                         m = v[i];
                         res = i;
                     }
@@ -73,19 +73,19 @@ pub fn p2() {
         let res = {
             let mut r = 0;
             for vv in indices.iter().enumerate() {
-                println!("{vv:?}, {}", v[*vv.1]);
+                //println!("{vv:?}, {}", v[*vv.1]);
                 let pos = vv.0;
                 let index = *vv.1;
                 let arr_val = v[index] as usize;
-                println!("Pos is {pos}, Index is {index}, arr_val is {arr_val}, adds up to: {}", arr_val*(10_usize.pow(12-pos as u32)));
+                //println!("Pos is {pos}, Index is {index}, arr_val is {arr_val}, adds up to: {}", arr_val*(10_usize.pow(12-pos as u32)));
 
 
                 r+=arr_val*(10_usize.pow(12-pos as u32));
-                println!("r was set to: {r}");
+                //println!("r was set to: {r}");
             }
             r
         };
-        println!("{res}");
+        //println!("{res}");
         total += res;
 
     }

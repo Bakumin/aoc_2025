@@ -3,6 +3,11 @@
 version = 4
 
 [[package]]
+name = "adventofcode_utils"
+version = "0.1.0"
+source = "git+https://github.com/Bakumin/aoc_utils.git#635baf42dd963c7575f8c6bdf896275350972bac"
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -15,6 +20,7 @@ dependencies = [
 name = "aoc2025"
 version = "0.1.0"
 dependencies = [
+ "adventofcode_utils",
  "regex",
 ]
 

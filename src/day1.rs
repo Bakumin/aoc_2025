@@ -53,12 +53,12 @@ pub fn p2() {
             }
         }
         if counter > 99 {
-            println!("Counter is {counter} so we're adding {} to {res}", counter.abs()/100);
+            //println!("Counter is {counter} so we're adding {} to {res}", counter.abs()/100);
             res+= counter.abs()/100;
             
         }
         if counter < 0 {
-            println!("Negative: Counter is {counter} so we're adding {} to {res}", (counter.abs()/100) +1);
+            //println!("Negative: Counter is {counter} so we're adding {} to {res}", (counter.abs()/100) +1);
             res+= (counter.abs()/100) +1;
             if line.1 == counter * -1 {
                 res -= 1;
