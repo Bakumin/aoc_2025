@@ -5,7 +5,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
-
+mod day8;
 fn main() {
     println!("Hello, world!");
     //day1::p1();
@@ -19,6 +19,9 @@ fn main() {
     //day5::p2();
     //day6::p1();
     //day6::p2();
-    day7::p1();
-    day7::p2();
+    //day7::p1();
+    //day7::p2();
+    day8::p1();
+    day8::p2();
+
 }
