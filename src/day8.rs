@@ -1,5 +1,5 @@
 use core::f64;
-use std::{fs};
+use std::{fs, mem::take};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Coords {
@@ -31,11 +31,11 @@ pub fn finish_circuit(c: Coords, pairs: &mut Vec<(Coords, Coords, f64)>, mut cir
 
 
 pub fn p1() {
-    let input = fs::read_to_string("./inputs/day8.txt").unwrap();
+    let input: String = fs::read_to_string("./inputs/day8.txt").unwrap();
     let values: Vec<Coords> = input.lines().map(|line| Coords::from(line)).collect();
     //println!("{values:?}");
     let mut all_pairs: Vec<(Coords,Coords, f64)> = Vec::new();
-    let mut pairs: Vec<(Coords, Coords, f64)> = Vec::with_capacity(10);
+    let mut pairs: Vec<(Coords, Coords, f64)>;
     let mut res = 1;
     for i in &values {
         'inner: for j in &values {
@@ -44,34 +44,16 @@ pub fn p1() {
                 continue 'inner;
             }
             let distance =   ((j.x-i.x).powi(2)+(j.y-i.y).powi(2) + (j.z-i.z).powi(2)).sqrt();
-            if !all_pairs.contains(&(*j, *i, distance)) {
+            //if !all_pairs.contains(&(*j, *i, distance)) {
                 all_pairs.push((*i,*j, distance));
-            }
-            //println!("i: {i:?}, j: {j:?}, distance: {distance}");
-            if pairs.len() < 1000 {
-                if !pairs.contains(&(*j, *i, distance)) {
-                pairs.push((*i, *j, distance));
-                if pairs.len() == 1000 {
-                    pairs.sort_by(|f, g| f.2.total_cmp(&g.2));
-                    //println!{"1: {:?}, 1000: {:?}", pairs[0], pairs[999]};
-                }
-            }
-            }
-            else {
-                if pairs[999].2 > distance && !pairs.contains(&(*j, *i, distance)) {
-                    pairs[999] = (*i, *j, distance);
-                    pairs.sort_by(|f, g| f.2.total_cmp(&g.2));
-                                        //println!{"1: {:?}, 1000: {:?}", pairs[0], pairs[999]};
-
-                }
-            }
+            //}
         }
     }
     let mut circuits: Vec<Vec<Coords>> = Vec::new();
-
     all_pairs.sort_by(|f,g| f.2.total_cmp(&g.2));
-    let subset: Vec<&(Coords, Coords, f64)> = all_pairs.iter().take(1000).collect();
-    //println!("All: {:?}", subset);
+
+    pairs = all_pairs.into_iter().enumerate().filter(|f| f.0 %2 == 0).take(1000).map(|f| f.1).collect();
+    println!("All: {:?}", pairs);
 
     //subset.iter().zip(pairs.clone()).for_each(|f| //println!("P1: {:?}, P2: {:?}", f.0, f.1));
 
@@ -93,7 +75,7 @@ pub fn p1() {
 
     loop {
         let mut circuit_count = circuits.len();
-        //println!("Circuit Count: {circuit_count}");
+        println!("Circuit Count: {circuit_count}");
         for i in 0..circuits.len() {
             for j in 0..circuits.len() {
                 if i != j 
@@ -123,6 +105,11 @@ pub fn p1() {
     for circuit in &mut circuits {
         circuit.sort_by(|f, g| f.x.total_cmp(&g.x));
         circuit.dedup();
+        println!("Circuit: {:?}, Length: {}", circuit, circuit.len());
+    }
+
+    circuits.sort_by(|f,g| g.len().cmp(&f.len()));
+    for circuit in &circuits {
         res *= circuit.len().max(1);
         loop_counter+=1;
         if loop_counter == 3 {
@@ -140,4 +127,124 @@ pub fn p1() {
 
 
 }
-pub fn p2() {}
+pub fn p2() {
+    let input: String = fs::read_to_string("./inputs/day8.txt").unwrap();
+    let values: Vec<Coords> = input.lines().map(|line| Coords::from(line)).collect();
+    //println!("{values:?}");
+    let mut all_pairs: Vec<(Coords,Coords, f64)> = Vec::new();
+    let mut res = 0;
+    let mut success = false;
+    let mut success_two = false;
+    for i in &values {
+        'inner: for j in &values {
+            if i == j {
+                //println!("{i:?} == {j:?}");
+                continue 'inner;
+            }
+            let distance =   ((j.x-i.x).powi(2)+(j.y-i.y).powi(2) + (j.z-i.z).powi(2)).sqrt();
+            //if !all_pairs.contains(&(*j, *i, distance)) {
+                all_pairs.push((*i,*j, distance));
+            //}
+        }
+    }
+    let mut take_this = 1000;
+
+    loop {
+    println!("Running with {take_this} connections");
+    let mut pairs: Vec<(Coords, Coords, f64)>;
+    let mut circuits: Vec<Vec<Coords>> = Vec::new();
+    all_pairs.sort_by(|f,g| f.2.total_cmp(&g.2));
+
+    pairs = all_pairs.clone().into_iter().enumerate().filter(|f| f.0 %2 == 0).take(take_this).map(|f| f.1).collect();
+    //println!("All: {:?}", pairs);
+
+    //subset.iter().zip(pairs.clone()).for_each(|f| //println!("P1: {:?}, P2: {:?}", f.0, f.1));
+
+
+    for pair in pairs.clone() {
+        //println!("Pair: {pair:?}");
+
+        let pos = circuits.iter().position(|c| c.contains(&pair.0));    
+        match pos {
+            Some(p) => {
+                circuits[p].push(pair.1);
+            },
+            None => {
+                let new_c = vec![pair.0, pair.1];
+                circuits.push(new_c);
+            }
+        }
+    }
+    let mut circuit_count = circuits.len();
+
+    loop {
+        println!("Circuit Count: {circuit_count}");
+        for i in 0..circuits.len() {
+            for j in 0..circuits.len() {
+                if i != j 
+                {
+                if circuits[j].iter().any(|co| circuits[i].contains(co)) {
+                    let mut other = circuits[j].clone();
+                    circuits[i].append(&mut other);
+                    circuits[j] = Vec::new();
+
+                }
+            }
+            }
+        }
+        circuits = circuits.into_iter().filter(|c| c.len() > 0).collect();
+        if circuit_count == circuits.len() {
+            break;
+        }
+        circuit_count = circuits.len();
+
+    }
+    if circuit_count > 1 || !values.iter().all(|v| circuits[0].contains(v)){
+        println!("Couldn't filter down to 1 circuit, running again");
+        if success {
+            take_this+=1;
+            success_two = true;
+        }
+        else {
+            take_this+=100;
+        }
+        continue;
+    }
+
+    else {
+
+        if success_two {
+            println!("Last Pair: {:?}", &pairs[pairs.len()-1]);
+            println!("Results: {}", pairs[pairs.len()-1].0.x * pairs[pairs.len()-1].1.x);
+            break;
+        }
+        println!("Could filter with {take_this} circuits, trying with fewer");
+        success = true;
+        take_this-=10;
+    }
+
+    //println!("{circuits:?}");
+
+    let mut loop_counter = 0;
+    for circuit in &mut circuits {
+        circuit.sort_by(|f, g| f.x.total_cmp(&g.x));
+        circuit.dedup();
+        //println!("Circuit: {:?}, Length: {}", circuit, circuit.len());
+    }
+
+    circuits.sort_by(|f,g| g.len().cmp(&f.len()));
+    for circuit in &circuits {
+        res = circuit.len().max(1);
+        loop_counter+=1;
+        if loop_counter == 3 {
+            break;
+        }
+    }
+
+
+    //println!("{circuits:?}");
+    println!("{}", circuits.len());
+    println!("Result: {res}");
+    }
+
+}
